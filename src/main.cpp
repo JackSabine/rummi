@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 #include "Rummikub_Tile_Set.h"
 
 #define TILES_DRAWN (14)
@@ -83,6 +84,10 @@ int main(int argc, char *argv[]) {
     std::vector<tile_t> hand;
     uint64_t *stats;
 
+    std::chrono::system_clock::time_point start_time;
+    std::chrono::system_clock::time_point end_time;
+    std::chrono::seconds sim_duration;
+
     if (argc != 2) {
         std::cout << "Error: expected 1 command-line argument but was provided " << (argc - 1) << "\n";
         return EXIT_FAILURE;
@@ -106,6 +111,7 @@ int main(int argc, char *argv[]) {
     std::cout << "=========================================\n";
     std::cout << "\n";
 
+    start_time = std::chrono::high_resolution_clock::now();
 
     for (uint64_t i = 0, j = 0; i < upperbound; i++, j++) {
         tile_set.shuffle_tiles();
@@ -119,12 +125,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    end_time = std::chrono::high_resolution_clock::now();
+    sim_duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
 
     std::cout << "\n";
     std::cout << "=========== Simulator results ===========\n";
     for (uint8_t i = 0; i < NUM_STRAIGHTS; i++) {
         std::cout << "Straights[" << std::to_string(i + MINIMUM_STRAIGHT) << "] = " << std::to_string(stats[i]) << "\n";
     }
+    std::cout << "\n";
+    std::cout << "Runtime: " << sim_duration.count() << "s\n";
     std::cout << "=========================================\n";
     std::cout << "\n";
 
