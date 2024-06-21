@@ -1,6 +1,8 @@
+.DEFAULT_GOAL := all
+
 CC = g++
-OPT = -O2
-#OPT = -g
+OPT = -O3
+# OPT = -g
 WARN = -Wall
 INC = -I inc
 STD = -std=c++11
