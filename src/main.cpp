@@ -1,76 +1,7 @@
 #include <stdlib.h>
 #include <iostream>
-#include <algorithm>
 #include <chrono>
-#include "Rummikub_Tile_Set.h"
-
-#define TILES_DRAWN (14)
-#define MINIMUM_STRAIGHT (3)
-
-#define SUIT_COUNT (4)
-#define TILES_PER_SUIT (13)
-#define DUPLICATE_COUNT (2)
-#define WITH_WILDS (true)
-#define WITHOUT_WILDS (false)
-
-#define TILES_IN_SET (DUPLICATE_COUNT * ((SUIT_COUNT * TILES_PER_SUIT) + (WITH_WILDS ? 1 : 0)))
-#define MAX_DEALABLE_HANDS ((TILES_IN_SET) / (TILES_DRAWN))
-
-// Highest straight can only be TILES_PER_SUIT
-// e.g. TILES_PER_SUIT = 5
-// 3 (MINIMUM_STRAIGHT)
-// 4
-// 5 (TILES_PER_SUIT)
-//
-// TILES_PER_SUIT - MINIMUM_STRAIGHT + 1
-#define NUM_STRAIGHTS (TILES_PER_SUIT - MINIMUM_STRAIGHT + 1)
-
-void print_hand(std::vector<tile_t> hand) {
-    std::cout << "------------\n";
-    for (tile_t tile : hand) {
-        std::cout << Rummikub_Tile_Set::tile_index_to_suit_and_num(tile) << "\n";
-    }
-    std::cout << "------------\n";
-}
-
-void compute_straights(std::vector<tile_t> hand, uint64_t stats[NUM_STRAIGHTS]) {
-    uint8_t current_straight;
-    tile_t prev_tile;
-
-    std::sort(hand.begin(), hand.end());
-
-    current_straight = 0;
-
-    for (tile_t tile : hand) {
-        if (current_straight == 0) {
-            // Start condition
-            prev_tile = tile;
-            current_straight = 1;
-            continue;
-        }
-
-        if (tile == prev_tile + 1) {
-            // Continue the streak;
-            prev_tile = tile;
-            current_straight++;
-        } else if (tile == prev_tile) {
-            // Same as previous tile, don't end streak but don't continue it
-            continue;
-        } else {
-            // Not a match
-            if (current_straight >= MINIMUM_STRAIGHT) {
-                stats[current_straight - MINIMUM_STRAIGHT]++;
-            }
-            prev_tile = tile;
-            current_straight = 1;
-        }
-    }
-
-    // Final exit check if no streak ended
-    if (current_straight >= MINIMUM_STRAIGHT) {
-        stats[current_straight - MINIMUM_STRAIGHT]++;
-    }
-}
+#include "Rummikub_Tile_Drawing.h"
 
 int main(int argc, char *argv[]) {
     const uint64_t heartbeat_interval =  1000000ul;
@@ -84,7 +15,8 @@ int main(int argc, char *argv[]) {
     );
 
     std::vector<std::vector<tile_t>> hands;
-    uint64_t *stats;
+    uint8_t hands_analyzed;
+    uint64_t stats[NUM_STRAIGHTS];
 
     std::chrono::system_clock::time_point start_time;
     std::chrono::system_clock::time_point end_time;
@@ -97,7 +29,6 @@ int main(int argc, char *argv[]) {
 
     upperbound = strtoul(argv[1], NULL, 0);
 
-    stats = new uint64_t [NUM_STRAIGHTS];
     for (uint8_t i = 0; i < NUM_STRAIGHTS; i++) {
         stats[i] = 0;
     }
@@ -115,13 +46,10 @@ int main(int argc, char *argv[]) {
 
     start_time = std::chrono::high_resolution_clock::now();
 
-    for (uint64_t i = 0, j = 0; i < upperbound; i += MAX_DEALABLE_HANDS, j += MAX_DEALABLE_HANDS) {
-        tile_set.shuffle_tiles();
-        hands = tile_set.deal_hands(MAX_DEALABLE_HANDS, TILES_DRAWN);
+    for (uint64_t i = 0, j = 0; i < upperbound; i += hands_analyzed, j += hands_analyzed) {
+        hands_analyzed = Rummikub_Tile_Drawing::draw_hands_and_analyze(tile_set, stats);
 
-        for (uint8_t h = 0; h < MAX_DEALABLE_HANDS; h++) {
-            compute_straights(hands[h], stats);
-        }
+        assert(hands_analyzed > 0);
 
         if (j >= heartbeat_interval) {
             j = 0;
