@@ -44,3 +44,22 @@ std::vector<tile_t> Rummikub_Tile_Set::pick_first_n_tiles(uint8_t n) {
     assert(tiles.size() >= n);
     return std::vector<tile_t>(tiles.begin(), tiles.begin() + n);
 }
+
+std::vector<std::vector<tile_t>> Rummikub_Tile_Set::deal_hands(uint8_t hand_count, uint8_t tiles_per_hand) {
+    std::vector<std::vector<tile_t>> hands;
+    uint16_t starting_index;
+
+    assert(hand_count * tiles_per_hand <= tiles.size());
+
+    starting_index = 0;
+
+    for (uint8_t h = 0; h < hand_count; h++) {
+        hands.push_back(std::vector<uint8_t>(
+            tiles.begin() + starting_index, tiles.begin() + starting_index + tiles_per_hand
+        ));
+
+        starting_index += tiles_per_hand;
+    }
+
+    return hands;
+}

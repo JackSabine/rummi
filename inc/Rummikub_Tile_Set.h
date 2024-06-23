@@ -24,6 +24,7 @@ public:
 
     void shuffle_tiles();
     std::vector<tile_t> pick_first_n_tiles(uint8_t n);
+    std::vector<std::vector<tile_t>> deal_hands(uint8_t hands, uint8_t tiles_per_hand);
 
     static tile_t suit_and_num_to_tile_index(uint8_t suit, uint8_t num);
     static std::string tile_index_to_suit_and_num(tile_t index);

@@ -13,6 +13,8 @@
 #define WITH_WILDS (true)
 #define WITHOUT_WILDS (false)
 
+#define TILES_IN_SET (DUPLICATE_COUNT * ((SUIT_COUNT * TILES_PER_SUIT) + (WITH_WILDS ? 1 : 0)))
+#define MAX_DEALABLE_HANDS ((TILES_IN_SET) / (TILES_DRAWN))
 
 // Highest straight can only be TILES_PER_SUIT
 // e.g. TILES_PER_SUIT = 5
@@ -81,7 +83,7 @@ int main(int argc, char *argv[]) {
         WITH_WILDS
     );
 
-    std::vector<tile_t> hand;
+    std::vector<std::vector<tile_t>> hands;
     uint64_t *stats;
 
     std::chrono::system_clock::time_point start_time;
@@ -113,13 +115,15 @@ int main(int argc, char *argv[]) {
 
     start_time = std::chrono::high_resolution_clock::now();
 
-    for (uint64_t i = 0, j = 0; i < upperbound; i++, j++) {
+    for (uint64_t i = 0, j = 0; i < upperbound; i += MAX_DEALABLE_HANDS, j += MAX_DEALABLE_HANDS) {
         tile_set.shuffle_tiles();
-        hand = tile_set.pick_first_n_tiles(TILES_DRAWN);
+        hands = tile_set.deal_hands(MAX_DEALABLE_HANDS, TILES_DRAWN);
 
-        compute_straights(hand, stats);
+        for (uint8_t h = 0; h < MAX_DEALABLE_HANDS; h++) {
+            compute_straights(hands[h], stats);
+        }
 
-        if (j == heartbeat_interval) {
+        if (j >= heartbeat_interval) {
             j = 0;
             std::cout << "Heartbeat - passed " << std::to_string(i) << " iterations of " << std::to_string(upperbound) << "\n";
         }
