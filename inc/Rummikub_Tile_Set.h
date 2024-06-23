@@ -10,7 +10,7 @@ private:
     const uint8_t suit_count;
     const uint8_t tiles_per_suit;
 
-    const static tile_t WILD_INDEX = 255u;
+    const inline static tile_t WILD_INDEX = 255u;
     std::vector<tile_t> tiles;
 
 public:

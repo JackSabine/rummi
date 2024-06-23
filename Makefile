@@ -5,7 +5,7 @@ OPT = -O3
 # OPT = -g
 WARN = -Wall
 INC = -I inc
-STD = -std=c++11
+STD = -std=c++17
 CFLAGS = $(OPT) $(WARN) $(INC) $(LIB) $(STD)
 
 WORKDIR := work
