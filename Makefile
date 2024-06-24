@@ -6,7 +6,9 @@ OPT = -O3
 WARN = -Wall
 INC = -I inc
 STD = -std=c++17
-CFLAGS = $(OPT) $(WARN) $(INC) $(LIB) $(STD)
+LIB =
+DEF =
+CFLAGS = $(OPT) $(WARN) $(INC) $(LIB) $(DEF) $(STD)
 
 WORKDIR := work
 SRCDIR := src
@@ -25,6 +27,9 @@ $(WORKDIR)/%.o: $(SRCDIR)/%.cpp | $(WORKDIR)
 
 all: $(OBJ)
 	$(CC) -o $(BIN) $(CFLAGS) $^ -lm
+
+omp:
+	$(MAKE) LIB=-fopenmp DEF=-DOMP
 
 clean:
 	rm -rf $(WORKDIR)
