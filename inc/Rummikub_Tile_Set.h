@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <vector>
 #include <string>
+#include <random>
 #include "Rummikub_Game.h"
 
 class Rummikub_Tile_Set {
@@ -11,6 +12,9 @@ private:
 
     const inline static tile_t WILD_INDEX = 255u;
     std::vector<tile_t> tiles;
+
+    std::random_device rd;
+    std::mt19937 g;
 
 public:
     Rummikub_Tile_Set(

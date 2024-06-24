@@ -18,6 +18,8 @@ Rummikub_Tile_Set::Rummikub_Tile_Set(
 
         if (has_wilds) tiles.push_back(WILD_INDEX);
     }
+
+    g.seed(rd());
 }
 
 Rummikub_Tile_Set::~Rummikub_Tile_Set() {}
@@ -37,7 +39,7 @@ std::string Rummikub_Tile_Set::tile_index_to_suit_and_num(tile_t index) {
 }
 
 void Rummikub_Tile_Set::shuffle_tiles() {
-    std::random_shuffle(tiles.begin(), tiles.end());
+    std::shuffle(tiles.begin(), tiles.end(), g);
 }
 
 std::vector<tile_t> Rummikub_Tile_Set::pick_first_n_tiles(uint8_t n) {
