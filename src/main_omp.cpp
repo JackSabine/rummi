@@ -2,9 +2,13 @@
 #include <iostream>
 #include <chrono>
 #include <omp.h>
+#include <type_traits>
 #include "Rummikub_Tile_Drawing.h"
 
-#define DIV_AND_ROUND_UP(NUM,DENOM) (((NUM) + ((DENOM)-1)) / (DENOM))
+template <typename T> inline T div_and_round_up(T numerator, T denominator) {
+    static_assert(std::is_integral<T>::value, "Not an integral type");
+    return (numerator + (denominator - 1)) / denominator;
+}
 
 int main(int argc, char *argv[]) {
     const uint64_t heartbeat_interval =  1000000ul;
@@ -33,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     omp_set_num_threads(thread_count);
 
-    games_per_thread = DIV_AND_ROUND_UP(upperbound, thread_count * MAX_DEALABLE_HANDS);
+    games_per_thread = div_and_round_up<uint64_t>(upperbound, thread_count * MAX_DEALABLE_HANDS);
     real_hands_dealt = thread_count * games_per_thread * MAX_DEALABLE_HANDS;
 
     std::cout << "\n";
